@@ -1,0 +1,15 @@
+# Gradle / Android build output
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+
+# Generated icon artefacts (regenerate with android/tools/make-icons.ps1)
+android/tools/icon-1024.png
+android/tools/preview-*.png
+
+# Signing keys must never be committed
+*.jks
+*.keystore

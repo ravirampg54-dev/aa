@@ -1,0 +1,147 @@
+/* ==========================================================================
+ * game.css — in-run chrome: HUD scrim, pause button and the touch pad.
+ * The HUD itself is drawn on the canvas by js/hud.js; this file only styles
+ * the DOM layer that sits over it.
+ * ========================================================================== */
+
+/* soft scrim under the top HUD panels so text stays legible over bright sky */
+#hudbar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 34%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3, 5, 14, .45), rgba(3, 5, 14, .14) 55%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent);
+  mask-image: linear-gradient(180deg, #000, transparent);
+}
+
+#btnPause {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-b) + 10px);
+  transform: translateX(-50%);
+  min-width: 64px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  color: var(--ink);
+  font: 800 14px var(--font);
+  letter-spacing: .16em;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), border-color var(--fast) var(--ease);
+  touch-action: manipulation;
+}
+#btnPause:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan); }
+#btnPause:active, #btnPause.press { transform: translateX(-50%) scale(.94); }
+
+#touch { position: absolute; inset: 0; pointer-events: none; }
+
+/* tap-to-steer: the outer third of each side shifts a lane, hold to repeat */
+.zones { position: absolute; inset: 0; }
+.zone {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 32%;
+  pointer-events: auto;
+  touch-action: none;
+  opacity: .45;
+  transition: opacity var(--fast) var(--ease);
+  background: linear-gradient(90deg, rgba(34, 225, 255, .16), rgba(34, 225, 255, .03) 60%, transparent);
+}
+.zone.right { left: auto; right: 0; background: linear-gradient(270deg, rgba(255, 59, 141, .16), rgba(255, 59, 141, .03) 60%, transparent); }
+.zone span {
+  position: absolute;
+  top: 50%;
+  font-size: clamp(20px, 4.4vw, 34px);
+  color: rgba(233, 242, 255, .28);
+  text-shadow: 0 0 14px rgba(34, 225, 255, .35);
+  transform: translate(-50%, -50%);
+}
+.zone.left span { left: 9%; }
+.zone.right span { left: auto; right: 9%; transform: translate(50%, -50%); }
+.zone.press { opacity: 1; }
+
+.zhint {
+  position: absolute;
+  left: 50%;
+  top: 29%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font: 700 clamp(9px, 1.7vw, 12px) var(--font);
+  letter-spacing: .22em;
+  color: rgba(233, 242, 255, .55);
+  white-space: nowrap;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .7);
+  animation: zhint 7s ease forwards;
+}
+@keyframes zhint { 0%, 55% { opacity: .85; } 100% { opacity: 0; } }
+
+.tbtn {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 clamp(10px, 2.9vw, 13px) var(--font);
+  letter-spacing: .08em;
+  color: var(--ink);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .2);
+  transition: transform .08s var(--ease), background var(--mid) var(--ease), box-shadow var(--mid) var(--ease);
+  touch-action: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.tbtn.arrow {
+  width: clamp(72px, min(24vw, 42vh), 112px);
+  height: clamp(72px, min(24vw, 42vh), 112px);
+  font-size: clamp(22px, 7vw, 36px);
+  background: radial-gradient(circle at 50% 35%, rgba(34, 225, 255, .28), rgba(8, 12, 30, .62));
+  border-color: rgba(120, 200, 255, .55);
+  text-shadow: 0 0 14px rgba(34, 225, 255, .6);
+}
+.tbtn.arrow.left { left: max(14px, var(--safe-l)); bottom: max(14px, var(--safe-b)); }
+.tbtn.arrow.right { right: max(14px, var(--safe-r)); bottom: max(14px, var(--safe-b)); }
+.tbtn.brake, .tbtn.nitro {
+  width: clamp(58px, min(17vw, 30vh), 88px);
+  height: clamp(58px, min(17vw, 30vh), 88px);
+  top: 38%;
+  transform: translateY(-50%);
+}
+.tbtn.brake {
+  left: max(14px, var(--safe-l));
+  background: radial-gradient(circle at 50% 35%, rgba(255, 70, 90, .3), rgba(34, 6, 12, .6));
+  border-color: rgba(255, 90, 110, .65);
+  color: #ff9aa8;
+}
+.tbtn.nitro {
+  right: max(14px, var(--safe-r));
+  background: radial-gradient(circle at 50% 35%, rgba(34, 225, 255, .3), rgba(4, 22, 38, .6));
+  border-color: rgba(34, 225, 255, .75);
+  color: var(--cyan);
+}
+.tbtn.press, .tbtn[aria-pressed="true"] { transform: scale(.9); box-shadow: 0 0 28px rgba(34, 225, 255, .5); }
+.tbtn.arrow.press, .tbtn.arrow[aria-pressed="true"] { background: radial-gradient(circle at 50% 35%, rgba(34, 225, 255, .6), rgba(8, 12, 30, .7)); box-shadow: 0 0 34px rgba(34, 225, 255, .6); }
+.tbtn.brake.press, .tbtn.brake[aria-pressed="true"] { transform: translateY(-50%) scale(.9); background: radial-gradient(circle at 50% 35%, rgba(255, 70, 90, .6), rgba(34, 6, 12, .7)); box-shadow: 0 0 28px rgba(255, 70, 90, .5); }
+.tbtn.nitro.press, .tbtn.nitro[aria-pressed="true"] { transform: translateY(-50%) scale(.9); background: radial-gradient(circle at 50% 35%, rgba(34, 225, 255, .6), rgba(4, 22, 38, .7)); box-shadow: 0 0 34px rgba(34, 225, 255, .65); }
+
+@media (max-height: 520px) {
+  .tbtn.brake, .tbtn.nitro { top: 34%; }
+  .zhint { display: none; }
+  .tbtn.arrow { width: clamp(64px, min(20vw, 34vh), 88px); height: clamp(64px, min(20vw, 34vh), 88px); }
+  .tbtn.brake, .tbtn.nitro { width: clamp(52px, min(14vw, 24vh), 72px); height: clamp(52px, min(14vw, 24vh), 72px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zhint { animation: none; opacity: 0; }
+  .tbtn, .btn { transition: none; }
+}

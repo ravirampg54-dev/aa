@@ -1,0 +1,236 @@
+/* ==========================================================================
+ * style.css — design tokens, reset and the shell (canvas, loading, overlays).
+ * Menus and HUD live in ui.css and game.css.
+ * ========================================================================== */
+
+:root {
+  /* --- palette ------------------------------------------------------- */
+  --cyan: #22e1ff;
+  --pink: #ff3b8d;
+  --amber: #ffb02e;
+  --lime: #7dff9b;
+  --violet: #8b7bff;
+  --danger: #ff5a6e;
+  --ink: #e9f2ff;
+  --muted: #9fb4d6;
+  --glass: rgba(10, 15, 36, .66);
+  --glass-2: rgba(16, 22, 48, .82);
+  --line: rgba(120, 200, 255, .26);
+  --shadow: 0 18px 50px rgba(0, 0, 0, .55);
+
+  /* --- accents used by the shared gradients --------------------------- */
+  --accent-grad: linear-gradient(100deg, var(--cyan), var(--violet) 55%, var(--pink));
+  --accent-soft: linear-gradient(100deg, rgba(34, 225, 255, .16), rgba(255, 59, 141, .1));
+  --glow-cyan: 0 0 26px rgba(34, 225, 255, .38);
+  --focus: #8ef4ff;
+
+  /* --- shape and rhythm ---------------------------------------------- */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --gap-1: 6px;
+  --gap-2: 10px;
+  --gap-3: 14px;
+  --gap-4: 22px;
+
+  /* --- motion -------------------------------------------------------- */
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --fast: .12s;
+  --mid: .2s;
+
+  --font: "Bahnschrift", "Segoe UI", "Arial Narrow", system-ui, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+
+/* Visible only to assistive tech. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #05060f;
+  color: var(--ink);
+  font-family: var(--font);
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* dvh keeps the shell correct when a mobile browser bar shows or hides;
+   the vh fallback covers older WebViews. */
+body { height: 100vh; height: 100dvh; }
+
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+#ui { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+#ui > * { pointer-events: none; }
+
+.hidden { display: none !important; }
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: #05060f;
+}
+.noscript h1 { font-size: clamp(28px, 8vw, 52px); font-style: italic; letter-spacing: .18em; }
+.noscript p { opacity: .75; font-size: 15px; }
+
+/* ------------------------------------------------------------- loading --- */
+#loading { gap: var(--gap-3); }
+#loading .logo {
+  width: 128px;
+  height: 128px;
+  filter: drop-shadow(0 0 26px rgba(34, 225, 255, .45));
+  animation: pulse 2.4s ease-in-out infinite;
+}
+h1.boot {
+  margin: 0;
+  font-size: clamp(30px, 7vw, 56px);
+  letter-spacing: .22em;
+  font-style: italic;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(100deg, #fff, var(--cyan) 55%, var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.load-track {
+  width: min(420px, 76vw);
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .12);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+#loadBar {
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  background: var(--accent-grad);
+  background-size: 200% 100%;
+  transition: width .25s var(--ease);
+  box-shadow: 0 0 14px rgba(34, 225, 255, .6);
+}
+#loadLabel { font: 700 12px var(--font); letter-spacing: .28em; opacity: .7; margin: 0; }
+#loadError {
+  display: none;
+  max-width: min(680px, 88vw);
+  max-height: 40vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  font: 12px/1.5 var(--mono);
+  color: #ff9aa8;
+  background: rgba(40, 8, 14, .6);
+  border: 1px solid rgba(255, 90, 110, .4);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+}
+#loadError.show { display: block; }
+#loadError:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ------------------------------------------------------------ toasts ----- */
+/* Above the screens (z-index 3) so a reward toast is never hidden by a panel. */
+#toasts {
+  position: absolute;
+  top: calc(var(--safe-t) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: min(420px, 90vw);
+}
+.toast {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  background: var(--glass-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: toastIn .3s var(--ease-out) both;
+  text-align: center;
+  max-width: 100%;
+}
+.toast strong { font-size: 12px; letter-spacing: .2em; color: var(--cyan); }
+.toast span { font-size: 15px; font-style: italic; }
+.toast b { font-size: 13px; color: var(--lime); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-10px) scale(.96); } to { opacity: 1; transform: none; } }
+
+@keyframes pulse { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+
+/* ------------------------------------------------------ tutorial card --- */
+/* Sits under the speedometer rather than at the bottom: the rider is drawn
+   around 90% of the screen height, so a bottom card would cover the player. */
+#tutCard {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--safe-t) + 116px);
+  transform: translate(-50%, -14px);
+  width: min(460px, 88vw);
+  padding: 14px 18px;
+  border-radius: var(--r-lg);
+  background: var(--glass-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity var(--mid) var(--ease), transform var(--mid) var(--ease);
+}
+#tutCard.show { opacity: 1; transform: translate(-50%, 0); }
+#tutCard h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: .18em; color: var(--cyan); }
+#tutCard p { margin: 0; font-size: 14px; line-height: 1.45; opacity: .9; }
+#tutStep { display: block; margin-top: 8px; font: 700 10px var(--font); letter-spacing: .2em; opacity: .55; }
+
+/* -------------------------------------------------------------- focus ---- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+/* Touch devices never show the ring, so do not leave a stale outline behind. */
+@media (pointer: coarse) {
+  :focus-visible { outline: none; }
+  .btn:focus, .next:focus, .level:focus, .set-row:focus { box-shadow: var(--glow-cyan); border-color: var(--cyan); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loading .logo, .toast { animation: none; }
+  #tutCard, #loadBar { transition: none; }
+  * { scroll-behavior: auto !important; }
+}

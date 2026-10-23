@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="description" content="Highway Rush — a 2.5D arcade motorcycle racer with campaign, endless, time attack and boss hunts">
+<meta name="theme-color" content="#05060f">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Highway Rush — Super Edition</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="game.css">
+</head>
+
+<body>
+
+<noscript>
+  <div class="noscript">
+    <h1>HIGHWAY RUSH</h1>
+    <p>This game needs JavaScript. Enable it in your browser settings and reload.</p>
+  </div>
+</noscript>
+
+<!-- Loading section -->
+<section id="loading" class="screen show" role="region" aria-labelledby="loadHeading">
+  <img class="logo" src="assets/images/logo.png" alt="" width="150" height="150">
+  <h1 class="boot" id="loadHeading">HIGHWAY RUSH</h1>
+  <div class="load-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-labelledby="loadLabel">
+    <div id="loadBar"></div>
+  </div>
+  <p id="loadLabel" class="load-label">LOADING</p>
+  <pre id="loadError" role="alert" tabindex="0"></pre>
+  <p class="hint small">Everything runs offline from this folder.</p>
+</section>
+
+<!-- Main UI -->
+<div id="ui">
+  <!-- HUD bar -->
+  <div id="hudbar" class="hidden" aria-hidden="true"></div>
+
+  <!-- Pause button -->
+  <button id="btnPause" type="button" class="hidden" data-act="pause" aria-label="Pause game">II</button>
+
+  <!-- Touch controls -->
+  <div id="touch" class="hidden" role="group" aria-label="Touch controls">
+    <div class="zones" aria-hidden="true">
+      <div class="zone left" data-zone="left"><span>&#9664;</span></div>
+      <div class="zone right" data-zone="right"><span>&#9654;</span></div>
+    </div>
+    <button type="button" class="tbtn brake" data-input="brake" aria-label="Brake" aria-pressed="false">BRAKE</button>
+    <button type="button" class="tbtn nitro" data-input="nitro" aria-label="Nitro boost" aria-pressed="false">NITRO</button>
+    <button type="button" class="tbtn arrow left" data-input="left" aria-label="Change lane left" aria-pressed="false">&#9664;</button>
+    <button type="button" class="tbtn arrow right" data-input="right" aria-label="Change lane right" aria-pressed="false">&#9654;</button>
+    <p class="zhint" aria-hidden="true">TAP A SIDE TO STEER</p>
+  </div>
+
+  <!-- Tutorial card -->
+  <div id="tutCard" role="status" aria-live="polite">
+    <h3 id="tutTitle">WELCOME</h3>
+    <p id="tutBody">Use arrow keys or screen buttons to steer. W to gas, S to brake, Space for nitro.</p>
+    <span id="tutStep" aria-hidden="true"></span>
+  </div>
+
+  <div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Single polite channel for screen changes -->
+  <p id="srStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <!-- ============================================================ loading -->
+  <section id="loadingScreen" class="screen show" role="region" aria-labelledby="loadHeading">
+    <img class="logo" src="assets/images/logo.png" alt="" width="150" height="150">
+    <h1 class="boot" id="loadHeading">HIGHWAY RUSH</h1>
+    <div class="load-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-labelledby="loadLabel">
+      <div id="loadBar"></div>
+    </div>
+    <p id="loadLabel" class="load-label">LOADING</p>
+    <pre id="loadError" role="alert" tabindex="0"></pre>
+    <p class="hint small">Everything runs offline from this folder.</p>
+  </section>
+
+  <!-- ============================================================ menu -->
+  <section id="menu" class="screen" role="region" aria-labelledby="menuTitle">
+    <h1 id="menuTitle">HIGHWAY<br>RUSH</h1>
+    <div class="stats">
+      <span>CASH <b id="mCash">$0</b></span>
+      <span>BEST DISTANCE <b id="mBest">0 m</b></span>
+      <span>ACHIEVEMENTS <b id="mAch">0 / 18</b></span>
+    </div>
+    <button type="button" class="next" data-act="campaign">
+      <em id="mNext">CAMPAIGN</em>
+      <span id="mNextSub">Start campaign</span>
+      <i aria-hidden="true">&#9654;</i>
+    </button>
+    <div class="stack cols">
+      <button type="button" class="btn primary" data-act="startEndless">ENDLESS</button>
+      <button type="button" class="btn" data-act="campaign">CAMPAIGN</button>
+      <button type="button" class="btn" data-act="garage">GARAGE</button>
+      <div class="row">
+        <button type="button" class="btn small" data-act="missions">MISSIONS</button>
+        <button type="button" class="btn small" data-act="achievements">AWARDS</button>
+      </div>
+      <div class="row">
+        <button type="button" class="btn small" data-act="controls">CONTROLS</button>
+        <button type="button" class="btn small" data-act="settings">SETTINGS</button>
+        <button type="button" class="btn small" data-act="credits">CREDITS</button>
+      </div>
+    </div>
+    <p class="hint">A/D change lane &bull; W gas &bull; S brake &bull; Space nitro &bull; P pause</p>
+    <p class="hint touch-only">Tap a side of the screen to steer, arrows in the bottom corners, BRAKE and NITRO on the edges.</p>
+  </section>
+
+  <!-- ============================================================ campaign -->
+  <section id="campaign" class="screen wide" role="region" aria-labelledby="campaignTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="campaignTitle">CAMPAIGN</h2>
+      <span class="cash" id="cCash">$0</span>
+    </header>
+    <div class="panel scroll" id="cList" role="group" aria-label="Campaign stages"></div>
+    <div class="row wrap">
+      <button type="button" class="btn" data-act="startTimeAttack" data-level="coast">TIME ATTACK</button>
+      <button type="button" class="btn" data-act="startBoss" data-level="freight">BOSS HUNT</button>
+      <button type="button" class="btn" data-act="startEndless">ENDLESS</button>
+    </div>
+    <p class="hint">Clear a stage to unlock the next one. Bonus objectives pay on top of the stage reward.</p>
+  </section>
+
+  <!-- ============================================================ garage -->
+  <section id="garage" class="screen wide" role="region" aria-labelledby="garageTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="garageTitle">GARAGE</h2>
+      <span class="cash" id="gCash">$0</span>
+    </header>
+    <div class="gcols">
+      <div class="panel preview" id="gFrame" data-bike="viper">
+        <canvas id="garageCanvas" width="440" height="240" role="img" aria-label="Bike preview"></canvas>
+        <div class="selector">
+          <button type="button" class="btn small" data-act="prevBike" aria-label="Previous bike">&lsaquo;</button>
+          <strong id="gName" aria-live="polite">BIKE</strong>
+          <button type="button" class="btn small" data-act="nextBike" aria-label="Next bike">&rsaquo;</button>
+        </div>
+        <p id="gBlurb" class="blurb">The best ride on four wheels.</p>
+        <p id="gAbility" class="ability">Accelerate with style.</p>
+      </div>
+      <div class="panel">
+        <div id="gStats"></div>
+        <button type="button" class="btn primary" id="gAction" data-act="bikeAction">SELECT</button>
+        <h3>UPGRADES</h3>
+        <div id="gUpg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ missions -->
+  <section id="missions" class="screen wide" role="region" aria-labelledby="missionsTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="missionsTitle">MISSIONS & STATS</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll" id="mList" role="group" aria-label="Missions"></div>
+    <div class="panel" id="mStats" role="group" aria-label="Lifetime statistics">
+      <div class="stats">
+        <span>DISTANCE TRAVELED: <b id="mDist">0 m</b></span>
+        <span>TOP SPEED: <b id="mTop">0 KM/H</b></span>
+        <span>CRASHES: <b id="mCrashes">0</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ achievements -->
+  <section id="achievements" class="screen wide" role="region" aria-labelledby="awardsTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="awardsTitle">AWARDS</h2>
+      <span class="cash" id="aCount">0 / 18</span>
+    </header>
+    <div class="panel scroll" id="aList" role="list" aria-label="Achievements"></div>
+  </section>
+
+  <!-- ============================================================ settings -->
+  <section id="settings" class="screen" role="region" aria-labelledby="settingsTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="settingsTitle">SETTINGS</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll" id="setList" aria-label="Settings">
+      <div class="setting-row">
+        <label>SOUND: <span id="setSound">ON</span></label>
+        <button type="button" class="btn small" data-act="toggleSound">Toggle</button>
+      </div>
+      <div class="setting-row">
+        <label>MUSIC: <span id="setMusic">ON</span></label>
+        <button type="button" class="btn small" data-act="toggleMusic">Toggle</button>
+      </div>
+      <div class="setting-row">
+        <label>WEATHER: <span id="setWeather">CLEAR</span></label>
+        <button type="button" class="btn small" data-act="toggleWeather">Toggle</button>
+      </div>
+      <div class="setting-row">
+        <label>DIFFICULTY: <span id="setDifficulty">NORMAL</span></label>
+        <button type="button" class="btn small" data-act="difficultyEasy">Easy</button>
+        <button type="button" class="btn small" data-act="difficultyNormal">Normal</button>
+        <button type="button" class="btn small" data-act="difficultyHard">Hard</button>
+      </div>
+      <div class="row wrap">
+        <button type="button" class="btn small" data-act="controls">CONTROLS</button>
+        <button type="button" class="btn small" data-act="replayTutorial">REPLAY TUTORIAL</button>
+        <button type="button" class="btn small" data-act="exportSave">EXPORT PROFILE</button>
+        <button type="button" class="btn small" data-act="importSave">IMPORT PROFILE</button>
+        <button type="button" class="btn small danger" data-act="resetProfile">RESET PROGRESS</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </section>
+
+  <!-- ============================================================ controls -->
+  <section id="controls" class="screen" role="region" aria-labelledby="controlsTitle">
+    <header>
+      <button type="button" class="btn small" data-act="settings">BACK</button>
+      <h2 id="controlsTitle">CONTROLS</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll" id="ctrlList" aria-label="Key bindings">
+      <p>Current bindings:</p>
+      <ul id="ctrlListItems">
+        <li>Gas: W or Up Arrow</li>
+        <li>Brake: S or Down Arrow</li>
+        <li>Nitro: Space</li>
+        <li>Left Lane: A or Left Arrow</li>
+        <li>Right Lane: D or Right Arrow</li>
+        <li>Pause: P or Esc</li>
+      </ul>
+      <p class="hint">Click an action then press a new key to rebind.</p>
+      <button type="button" class="btn small" data-act="resetBindings">RESTORE DEFAULTS</button>
+      <button type="button" class="btn small" data-act="rebindCancel">CANCEL REBIND</button>
+    </div>
+    <p class="hint">Gamepads work too: stick or D-pad to steer, A to brake, X for nitro, Start to pause.</p>
+  </section>
+
+  <!-- ============================================================ credits -->
+  <section id="credits" class="screen" role="region" aria-labelledby="creditsTitle">
+    <header>
+      <button type="button" class="btn small" data-act="menu">BACK</button>
+      <h2 id="creditsTitle">CREDITS</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll credits">
+      <h3>HIGHWAY RUSH</h3>
+      <p>A 2.5D arcade motorcycle racer that runs entirely in the browser — no engine, no build step, no network.</p>
+      <h3>HOW IT IS BUILT</h3>
+      <ul>
+        <li><b>Rendering</b> — Canvas 2D with a pseudo-3D segment road renderer, a chase camera with speed-driven FOV, lag and roll, parallax silhouette layers and sprite sheets.</li>
+        <li><b>Art</b> — every sprite, background and icon is generated procedurally by <code>tools/gen-sprites.js</code>; nothing is traced or downloaded.</li>
+        <li><b>Audio</b> — the soundtrack and every effect are synthesised to WAV by <code>tools/gen-audio.js> (subtractive synth, drum voices, reverb); the engine note is generated live with WebAudio.</li>
+        <li><b>Data</b> — levels, vehicles, pickups and awards live in <code>data/*.json</code> and are compiled to <code>js/data.gen.js</code> so the game runs straight from the filesystem.</li>
+        <li><b>Code</b> — vanilla ES2018 in plain scripts under <code>js/</code>, one concern per module, no dependencies.</li>
+      </ul>
+      <h3>THANKS</h3>
+      <p>To everyone who kept this highway open. Ride safe.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ pause -->
+  <section id="pause" class="screen" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <h2 id="pauseTitle">PAUSED</h2>
+    <div class="stack">
+      <button type="button" class="btn primary" data-act="resume">RESUME</button>
+      <button type="button" class="btn" data-act="restart">RESTART RUN</button>
+      <button type="button" class="btn" data-act="settings">SETTINGS</button>
+      <button type="button" class="btn" data-act="quit">MAIN MENU</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ results -->
+  <section id="results" class="screen wide" role="region" aria-labelledby="rTitle">
+    <h2 id="rTitle">STAGE CLEAR</h2>
+    <p class="sub" id="rLevel"></p>
+    <div class="panel res" id="rRows"></div>
+    <div class="bonus-wrap" id="rBonus"></div>
+    <p class="wallet">WALLET <b id="rCash">$0</b></p>
+    <div class="stack cols">
+      <button type="button" class="btn primary" data-act="restart">RACE AGAIN</button>
+      <button type="button" class="btn" data-act="campaign">CAMPAIGN</button>
+      <button type="button" class="btn" data-act="menu">MAIN MENU</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ confirm -->
+  <section id="confirm" class="screen dim" role="dialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfBody">
+    <div class="panel stack">
+      <h3 id="cfTitle">Are you sure?</h3>
+      <p id="cfBody">This will reset all your progress, cash, and unlocked bikes.</p>
+      <button type="button" class="btn danger" id="cfYes" data-act="confirmYes">YES</button>
+      <button type="button" class="btn" data-act="closeConfirm">CANCEL</button>
+    </div>
+  </section>
+</div>
+
+<!-- Load order matters: data, then systems, then the game, then boot -->
+<script src="js/data.gen.js"></script>
+<script src="js/utilities.js"></script>
+<script src="js/save-system.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/input.js"></script>
+<script src="js/a11y.js"></script>
+<script src="js/environment.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/road.js"></script>
+<script src="js/traffic.js"></script>
+<script src="js/bikes.js"></script>
+<script src="js/player.js"></script>
+<script src="js/collision.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
